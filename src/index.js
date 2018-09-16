@@ -1,7 +1,11 @@
 // --------------------------------------------------
 // IMPORT MODULES
 // --------------------------------------------------
+// Node
 const fs = require( 'fs' );
+
+// Vendor
+const globToRegExp = require( 'glob-to-regexp' );
 
 // --------------------------------------------------
 // DEFINE CLASS
@@ -47,8 +51,9 @@ class Neauxp {
 				.filter( fileName => fs.lstatSync( fileName ).isFile() )
 				.forEach( ( fileName ) => {
 					const patterns = Object.keys( this.settings.patterns )
-						.filter( key => fileName.match( key ) )
-						.map( key => this.settings.patterns[ key ] )
+						.map( key => [ key, globToRegExp( key ) ] )
+						.filter( tuple => tuple[ 1 ].test( fileName ) )
+						.map( tuple => this.settings.patterns[ tuple[ 0 ] ] )
 						.reduce( ( acc, arr ) => [ ...acc, ...arr ], [] );
 
 					const content = fs.readFileSync( `${process.cwd()}/${fileName}`, { encoding: 'utf-8' } );

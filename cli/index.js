@@ -9,7 +9,7 @@ const chalk = require( 'chalk' );
 
 // Project
 const pkg = require( `${process.cwd()}/package.json` );
-const Neauxp = require( '../src' );
+const Neauxp = require( '../dist' );
 
 // --------------------------------------------------
 // DECLARE VARS

@@ -23,7 +23,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 // --------------------------------------------------
 // IMPORT MODULES
 // --------------------------------------------------
-var fs = require('fs'); // --------------------------------------------------
+// Node
+var fs = require('fs'); // Vendor
+
+
+var globToRegExp = require('glob-to-regexp'); // --------------------------------------------------
 // DEFINE CLASS
 // --------------------------------------------------
 
@@ -79,10 +83,12 @@ function () {
         files.filter(function (fileName) {
           return fs.lstatSync(fileName).isFile();
         }).forEach(function (fileName) {
-          var patterns = Object.keys(_this.settings.patterns).filter(function (key) {
-            return fileName.match(key);
-          }).map(function (key) {
-            return _this.settings.patterns[key];
+          var patterns = Object.keys(_this.settings.patterns).map(function (key) {
+            return [key, globToRegExp(key)];
+          }).filter(function (tuple) {
+            return tuple[1].test(fileName);
+          }).map(function (tuple) {
+            return _this.settings.patterns[tuple[0]];
           }).reduce(function (acc, arr) {
             return _toConsumableArray(acc).concat(_toConsumableArray(arr));
           }, []);

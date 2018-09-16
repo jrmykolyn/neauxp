@@ -9,7 +9,7 @@ const chalk = require( 'chalk' );
 
 // Project
 const pkg = require( `${process.cwd()}/package.json` );
-const Neauxp = require( '../dist' );
+const Neauxp = require( '../src' );
 
 // --------------------------------------------------
 // DECLARE VARS
@@ -23,17 +23,17 @@ const neauxp = new Neauxp( opts );
 const files = execSync( 'git diff --name-only --cached', { encoding: 'utf-8' } ).trim().split( '\n' );
 
 neauxp.run( files )
-    .then( ( { matches, msg } ) => {
-        if ( matches ) {
-            console.log( chalk.red( msg ) );
-            console.log( chalk.red( JSON.stringify( matches, null, 2 ) ) );
-            process.exit( 1 );
-        } else {
-            console.log( msg );
-            process.exit( 0 );
-        }
-    } )
-    .catch( ( err ) => {
-        console.log( chalk.red( err ) );
-        process.exit( 1 );
-    } );
+	.then( ( { matches, msg } ) => {
+		if ( matches ) {
+			console.log( chalk.red( msg ) );
+			console.log( chalk.red( JSON.stringify( matches, null, 2 ) ) );
+			process.exit( 1 );
+		} else {
+			console.log( msg );
+			process.exit( 0 );
+		}
+	} )
+	.catch( ( err ) => {
+		console.log( chalk.red( err ) );
+		process.exit( 1 );
+	} );

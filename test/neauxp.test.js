@@ -19,7 +19,7 @@ chai.use( sinonChai ).use( chaiAsPromised );
 
 const MOCK_OPTS = {
 	patterns: {
-		'foo': [
+		'*foo*': [
 			'foo',
 			'bar',
 			'baz',
@@ -89,7 +89,7 @@ describe( 'Neauxp', () => {
 			it( 'should resolve with 0x matches if the file set does not include any violations', ( done ) => {
 				const OPTS = {
 					patterns : {
-						bar: [ 'hello', 'world!' ],
+						'*bar*': [ 'hello', 'world!' ],
 					},
 				};
 
@@ -107,7 +107,7 @@ describe( 'Neauxp', () => {
 			it( 'should resolve with >= 1 matches if the current commit includes one or more violations', ( done ) => {
 				const OPTS = {
 					patterns: {
-						foo: [
+						'*foo*': [
 							'bar',
 							'baz',
 							'quux',

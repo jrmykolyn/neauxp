@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha ./test",
-    "lint": "eslint ./src",
+    "lint": "eslint ./src ./cli ./test",
     "compile": "babel ./src --out-file ./dist/index.js"
   },
   "author": "Jesse R Mykolyn",

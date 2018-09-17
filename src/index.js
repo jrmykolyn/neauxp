@@ -31,6 +31,11 @@ class Neauxp {
 		}
 
 		this.settings = Object.assign( {}, options );
+
+		this.getPatterns = this.getPatterns.bind( this );
+		this.isFile = this.isFile.bind( this );
+		this.toOutput = this.toOutput.bind( this );
+		this.toTuple = this.toTuple.bind( this );
 	}
 
 	run( files = [] ) {
@@ -47,29 +52,52 @@ class Neauxp {
 				return;
 			}
 
-			files
-				.filter( fileName => fs.lstatSync( fileName ).isFile() )
-				.forEach( ( fileName ) => {
-					const patterns = Object.keys( this.settings.patterns )
-						.map( key => [ key, globToRegExp( key ) ] )
-						.filter( tuple => tuple[ 1 ].test( fileName ) )
-						.map( tuple => this.settings.patterns[ tuple[ 0 ] ] )
-						.reduce( ( acc, arr ) => [ ...acc, ...arr ], [] );
-
-					const content = fs.readFileSync( `${process.cwd()}/${fileName}`, { encoding: 'utf-8' } );
-
-					const matches = patterns
-						.map( pattern => content.match( pattern ) )
-						.filter( match => !!match )
-						.reduce( ( acc, arr ) => [ ...acc, ...arr ], [] );
-
-					output = { ...output, ...( matches && matches.length ? { [ fileName ]: matches } : {} ) };
-				} );
+			const output = files
+				.filter( this.isFile )
+				.map( this.toTuple )
+				.reduce( this.toOutput, [] );
 
 			Object.keys( output ).length
 				? resolve( { matches: output, msg: Neauxp.MESSAGES.RESPONSE.HAS_MATCHES } )
 				: resolve( { matches: null, msg: Neauxp.MESSAGES.RESPONSE.NO_MATCHES } );
 		} );
+	}
+
+	getContent( fileName ) {
+		return fs.readFileSync( `${process.cwd()}/${fileName}`, { encoding: 'utf-8' } );
+	}
+
+	getMatches( content = '', patterns = [] ) {
+		return patterns
+			.map( pattern => content.match( pattern ) )
+			.filter( match => !!match )
+			.reduce( ( acc, arr ) => [ ...acc, ...arr ], [] );
+	}
+
+	getPatterns( fileName ) {
+		return Object.keys( this.settings.patterns )
+			.map( key => [ key, globToRegExp( key ) ] )
+			.filter( tuple => tuple[ 1 ].test( fileName ) )
+			.map( tuple => this.settings.patterns[ tuple[ 0 ] ] )
+			.reduce( ( acc, arr ) => [ ...acc, ...arr ], [] );
+	}
+
+	isFile( fileName ) {
+		return fs.lstatSync( fileName ).isFile();
+	}
+
+	toTuple( fileName ) {
+		const patterns = this.getPatterns( fileName );
+		const content = this.getContent( fileName );
+		const matches = this.getMatches( content, patterns );
+
+		return [ fileName, matches ];
+	}
+
+	toOutput( obj, tuple ) {
+		const [ fileName, matches ] = tuple;
+
+		return { ...obj, ...( matches && matches.length ? { [ fileName ]: matches } : {} ) };
 	}
 }
 

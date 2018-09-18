@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha ./test",
     "lint": "eslint ./src ./cli ./test",
-    "compile": "babel ./src --out-file ./dist/index.js"
+    "compile": "babel ./src --out-file ./dist/index.js",
+    "prepush": "npm run test"
   },
   "author": "Jesse R Mykolyn",
   "license": "ISC",

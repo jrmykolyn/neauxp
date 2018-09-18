@@ -1,6 +1,9 @@
 // --------------------------------------------------
 // IMPORT MODULES
 // --------------------------------------------------
+// Node
+const fs = require( 'fs' );
+
 // Vendor
 const chai = require( 'chai' );
 const { it } = require( 'mocha' );
@@ -17,14 +20,22 @@ const Neauxp = require( '../src' );
 // --------------------------------------------------
 chai.use( sinonChai ).use( chaiAsPromised );
 
+const FOO_KEY = '*foo*';
+const FOO_PATTERNS = [
+	'foo',
+	'bar',
+	'baz',
+	'quux',
+];
+const HELLO_KEY = '*hello*';
+const HELLO_PATTERNS = [ 'a' ];
+const WORLD_KEY = '*world*';
+const WORLD_PATTERNS = [ 'b' ];
 const MOCK_OPTS = {
 	patterns: {
-		'*foo*': [
-			'foo',
-			'bar',
-			'baz',
-			'quux',
-		],
+		[ FOO_KEY ]: FOO_PATTERNS,
+		[ HELLO_KEY ]: HELLO_PATTERNS,
+		[ WORLD_KEY ]: WORLD_PATTERNS,
 	},
 };
 
@@ -45,7 +56,13 @@ describe( 'Neauxp', () => {
 	describe( 'Instance methods', () => {
 		describe( 'API', () => {
 			const methods = [
+				'getContent',
+				'getMatches',
+				'getPatterns',
+				'isFile',
 				'run',
+				'toOutput',
+				'toTuple',
 			];
 
 			methods.forEach( ( method ) => {
@@ -58,6 +75,91 @@ describe( 'Neauxp', () => {
 		describe( 'constructor()', () => {
 			it( 'should throw an error when invoked without an `options` object', () => {
 				expect( () => new Neauxp() ).to.throw();
+			} );
+		} );
+
+		describe( 'getContent()', () => {
+			it( 'should call `readFileSync` with the `fileName` provided', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = 'foo/bar/baz';
+				const readStub = sinon.stub( fs, 'readFileSync' );
+
+				const result = instance.getContent( fileName );
+
+				// TODO: Update test to take into account `process.cwd()`.
+				expect( readStub.args[ 0 ][ 0 ] ).to.include( fileName );
+
+				readStub.restore();
+			} );
+		} );
+
+		describe( 'getMatches()', () => {
+			it( 'should return an empty array when invoked without args', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+
+				const result = instance.getMatches();
+
+				expect( result ).to.eql( [] );
+			} );
+
+			it( 'should return an array of matches', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const input = 'Foo hello there, you must bar wondering baz about my quux?';
+				const expected = FOO_PATTERNS;
+
+				const result = instance.getPatterns( 'foo/bar/baz' );
+
+				expect( result ).to.eql( expected );
+			} );
+		} );
+
+		describe( 'getPatterns()', () => {
+			it( 'should return an array of patterns', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const expected = [
+					'foo',
+					'bar',
+					'baz',
+					'quux',
+				];
+
+				const result = instance.getPatterns( 'foo' );
+
+				expect( result ).to.eql( expected );
+			} );
+
+			it( 'should merge pattern arrays', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const expected = [
+					'a',
+					'b',
+				];
+
+				const result = instance.getPatterns( 'hello-world' );
+
+				expect( result ).to.eql( expected );
+			} );
+
+			it( 'should return an empty array if no patterns exist', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+
+				const result = instance.getPatterns( '__NOTHING_MATCHES_THIS_BAD_BOY__' );
+
+				expect( result ).to.eql( [] );
+			} );
+		} );
+
+		describe( 'isFile()', () => {
+			it( 'should call `lstatSync()` with the `fileName` provided', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = 'foo/bar/baz';
+				const lstatStub = sinon.stub( fs, 'lstatSync' ).returns( { isFile: sinon.stub() } );
+
+				const result = instance.isFile( fileName );
+
+				expect( lstatStub ).to.have.been.calledWith( fileName );
+
+				lstatStub.restore();
 			} );
 		} );
 
@@ -124,6 +226,41 @@ describe( 'Neauxp', () => {
 					msg: Neauxp.MESSAGES.RESPONSE.HAS_MATCHES,
 					matches: { './test/data/foo.txt': [ 'bar', 'baz', 'quux' ] },
 				} ).notify( done );
+			} );
+		} );
+
+		describe( 'toTuple', () => {
+			it( 'should return an array of length 2', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				sinon.stub( instance, 'getPatterns' );
+				sinon.stub( instance, 'getContent' );
+				sinon.stub( instance, 'getMatches' );
+
+				const result = instance.toTuple( 'foo/bar/baz' );
+
+				expect( result.length ).to.equal( 2 );
+			} );
+
+			it( 'should return the `fileName` as the first item in the array', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = './test/data/foo.txt';
+				sinon.stub( instance, 'getPatterns' );
+				sinon.stub( instance, 'getContent' );
+				sinon.stub( instance, 'getMatches' );
+
+				const result = instance.toTuple( fileName );
+
+				expect( result[ 0 ] ).to.equal( fileName );
+			} );
+
+			it( 'should return an array of matches as the second item', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = './test/data/foo.txt';
+				const expected = FOO_PATTERNS;
+
+				const result = instance.toTuple( fileName );
+
+				expect( result[ 1 ] ).to.eql( FOO_PATTERNS );
 			} );
 		} );
 	} );

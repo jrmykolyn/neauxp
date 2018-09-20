@@ -86,8 +86,19 @@ describe( 'Neauxp', () => {
 
 				const result = instance.getContent( fileName );
 
-				// TODO: Update test to take into account `process.cwd()`.
-				expect( readStub.args[ 0 ][ 0 ] ).to.include( fileName );
+				expect( readStub ).to.have.been.called;
+
+				readStub.restore();
+			} );
+
+			it( 'should prefix the `fileName` with the current working directory', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = 'foo/bar/baz';
+				const readStub = sinon.stub( fs, 'readFileSync' );
+
+				const result = instance.getContent( fileName );
+
+				expect( readStub.args[ 0 ][ 0 ] ).to.equal( `${process.cwd()}/${fileName}` );
 
 				readStub.restore();
 			} );

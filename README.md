@@ -55,6 +55,6 @@ To get started, follow the Husky installation instructions [here](https://www.np
 ```
 
 ## Documentation
-Currently, Goalist does not include any external documentation.
+Currently, Neauxp does not include any external documentation.
 
 For an overview of the project's evolution, please consult the CHANGELOG.

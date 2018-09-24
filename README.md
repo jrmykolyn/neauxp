@@ -1,11 +1,14 @@
 # Neauxp
 
+![Neauxp](https://raw.githubusercontent.com/jrmykolyn/neauxp/master/neauxp.gif)
+
 ## Table of Contents
 - [About](#about)
 - [Installation](#installation)
 - [Setup](#setup)
 - [Usage](#usage)
 - [Documentation](#documentation)
+- [Attribution](#attribution)
 
 ## About
 Neauxp protects you... from yourself. Use globs and regular expressions to stop bad code at commit time.
@@ -58,3 +61,6 @@ To get started, follow the Husky installation instructions [here](https://www.np
 Currently, Neauxp does not include any external documentation.
 
 For an overview of the project's evolution, please consult the CHANGELOG.
+
+## Attribution
+- `README.md` gif: https://giphy.com/gifs/basketball-jason-4DMoU35sYt1bW

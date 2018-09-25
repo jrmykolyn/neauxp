@@ -102,6 +102,13 @@ describe( 'Neauxp', () => {
 
 				readStub.restore();
 			} );
+
+			it( 'should not throw an error if the file does not exist', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = 'foo/bar/baz';
+
+				expect( () => instance.getContent( fileName ) ).to.not.throw();
+			} );
 		} );
 
 		describe( 'getMatches()', () => {

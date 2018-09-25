@@ -64,7 +64,11 @@ class Neauxp {
 	}
 
 	getContent( fileName ) {
-		return fs.readFileSync( `${process.cwd()}/${fileName}`, { encoding: 'utf-8' } );
+		try {
+			return fs.readFileSync( `${process.cwd()}/${fileName}`, { encoding: 'utf-8' } );
+		} catch ( err ) {
+			return '';
+		}
 	}
 
 	getMatches( content = '', patterns = [] ) {

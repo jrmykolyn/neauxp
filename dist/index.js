@@ -144,7 +144,11 @@ function () {
   }, {
     key: "isFile",
     value: function isFile(fileName) {
-      return fs.lstatSync(fileName).isFile();
+      try {
+        return fs.lstatSync(fileName).isFile();
+      } catch (err) {
+        return '';
+      }
     }
   }, {
     key: "toTuple",

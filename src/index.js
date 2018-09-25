@@ -87,7 +87,11 @@ class Neauxp {
 	}
 
 	isFile( fileName ) {
-		return fs.lstatSync( fileName ).isFile();
+		try {
+			return fs.lstatSync( fileName ).isFile();
+		} catch ( err ) {
+			return '';
+		}
 	}
 
 	toTuple( fileName ) {

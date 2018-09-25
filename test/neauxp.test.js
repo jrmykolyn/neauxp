@@ -179,6 +179,13 @@ describe( 'Neauxp', () => {
 
 				lstatStub.restore();
 			} );
+
+			it( 'should not throw an error if the file does not exist', () => {
+				const instance = new Neauxp( MOCK_OPTS );
+				const fileName = 'foo/bar/baz';
+
+				expect( () => instance.isFile( fileName ) ).to.not.throw();
+			} );
 		} );
 
 		describe( 'run()', () => {

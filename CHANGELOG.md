@@ -13,6 +13,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Removed
 
+## [0.1.2] - 2018-09-24
+
+### Fixed
+- Fixed issue where attempting to check type of deleted files resulted in a fatal error.
+
 ## [0.1.1] - 2018-09-24
 
 ### Added
@@ -21,7 +26,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - DOCS: Updated `README.md` with 'Attribution' subsection and gif.
 
 ### Fixed
-- Fixed issue where checking for violations in deleted files resulted in a fatal error.
+- Fixed issue where attempting to read deleted files resulted in a fatal error.
 
 ### Removed
 

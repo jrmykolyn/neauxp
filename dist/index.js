@@ -4,6 +4,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -60,6 +68,10 @@ function () {
     }
 
     this.settings = Object.assign({}, options);
+    this.getPatterns = this.getPatterns.bind(this);
+    this.isFile = this.isFile.bind(this);
+    this.toOutput = this.toOutput.bind(this);
+    this.toTuple = this.toTuple.bind(this);
   }
 
   _createClass(Neauxp, [{
@@ -80,30 +92,7 @@ function () {
           return;
         }
 
-        files.filter(function (fileName) {
-          return fs.lstatSync(fileName).isFile();
-        }).forEach(function (fileName) {
-          var patterns = Object.keys(_this.settings.patterns).map(function (key) {
-            return [key, globToRegExp(key)];
-          }).filter(function (tuple) {
-            return tuple[1].test(fileName);
-          }).map(function (tuple) {
-            return _this.settings.patterns[tuple[0]];
-          }).reduce(function (acc, arr) {
-            return _toConsumableArray(acc).concat(_toConsumableArray(arr));
-          }, []);
-          var content = fs.readFileSync("".concat(process.cwd(), "/").concat(fileName), {
-            encoding: 'utf-8'
-          });
-          var matches = patterns.map(function (pattern) {
-            return content.match(pattern);
-          }).filter(function (match) {
-            return !!match;
-          }).reduce(function (acc, arr) {
-            return _toConsumableArray(acc).concat(_toConsumableArray(arr));
-          }, []);
-          output = _objectSpread({}, output, matches && matches.length ? _defineProperty({}, fileName, matches) : {});
-        });
+        var output = files.filter(_this.isFile).map(_this.toTuple).reduce(_this.toOutput, []);
         Object.keys(output).length ? resolve({
           matches: output,
           msg: Neauxp.MESSAGES.RESPONSE.HAS_MATCHES
@@ -112,6 +101,67 @@ function () {
           msg: Neauxp.MESSAGES.RESPONSE.NO_MATCHES
         });
       });
+    }
+  }, {
+    key: "getContent",
+    value: function getContent(fileName) {
+      try {
+        return fs.readFileSync("".concat(process.cwd(), "/").concat(fileName), {
+          encoding: 'utf-8'
+        });
+      } catch (err) {
+        return '';
+      }
+    }
+  }, {
+    key: "getMatches",
+    value: function getMatches() {
+      var content = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      var patterns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      return patterns.map(function (pattern) {
+        return content.match(pattern);
+      }).filter(function (match) {
+        return !!match;
+      }).reduce(function (acc, arr) {
+        return _toConsumableArray(acc).concat(_toConsumableArray(arr));
+      }, []);
+    }
+  }, {
+    key: "getPatterns",
+    value: function getPatterns(fileName) {
+      var _this2 = this;
+
+      return Object.keys(this.settings.patterns).map(function (key) {
+        return [key, globToRegExp(key)];
+      }).filter(function (tuple) {
+        return tuple[1].test(fileName);
+      }).map(function (tuple) {
+        return _this2.settings.patterns[tuple[0]];
+      }).reduce(function (acc, arr) {
+        return _toConsumableArray(acc).concat(_toConsumableArray(arr));
+      }, []);
+    }
+  }, {
+    key: "isFile",
+    value: function isFile(fileName) {
+      return fs.lstatSync(fileName).isFile();
+    }
+  }, {
+    key: "toTuple",
+    value: function toTuple(fileName) {
+      var patterns = this.getPatterns(fileName);
+      var content = this.getContent(fileName);
+      var matches = this.getMatches(content, patterns);
+      return [fileName, matches];
+    }
+  }, {
+    key: "toOutput",
+    value: function toOutput(obj, tuple) {
+      var _tuple = _slicedToArray(tuple, 2),
+          fileName = _tuple[0],
+          matches = _tuple[1];
+
+      return _objectSpread({}, obj, matches && matches.length ? _defineProperty({}, fileName, matches) : {});
     }
   }]);
 

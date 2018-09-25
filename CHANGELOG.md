@@ -8,9 +8,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Removed
+
+## [0.1.1] - 2018-09-24
+
+### Added
+
+### Changed
 - DOCS: Updated `README.md` with 'Attribution' subsection and gif.
 
 ### Fixed
+- Fixed issue where checking for violations in deleted files resulted in a fatal error.
 
 ### Removed
 
